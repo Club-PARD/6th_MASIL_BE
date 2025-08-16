@@ -33,9 +33,7 @@ spring:
         enable_lazy_load_no_trans: true
 
 server:
-  error:
-    include-message: always
-
+  port: 8080
 openai:
   api-key: ${OPENAI_API_KEY:}     # ????? ??
   base-url: https://api.openai.com

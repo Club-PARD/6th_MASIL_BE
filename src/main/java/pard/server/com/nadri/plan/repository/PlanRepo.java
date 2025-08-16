@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import pard.server.com.nadri.plan.entity.Plan;
 
 @Repository
-public interface PlanRepo extends JpaRepository<Long, Plan> {
+public interface PlanRepo extends JpaRepository<Plan, Long> {
 }
