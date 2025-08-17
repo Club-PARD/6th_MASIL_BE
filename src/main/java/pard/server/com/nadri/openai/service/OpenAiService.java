@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import pard.server.com.nadri.kakaoLocal.dto.PlaceDto;
+
+import java.util.List;
 
 @Service
 public class OpenAiService {
@@ -14,7 +17,7 @@ public class OpenAiService {
         this.client = client;
     }
 
-    public void callChatApi() {
+    public void callChatApi(List<PlaceDto> placeDtos) {
 //        // 1) JSON Schema 정의
 //        Map<String, Object> responseSchema = Map.of(
 //                "name", "ResponseChatDto",

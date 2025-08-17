@@ -22,8 +22,10 @@ public abstract class PlanItem {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    private int orderNum; // 순서
     private String title; // 제목
     private LocalTime startTime; // 시작 시간
+    private LocalTime endTime; // 끝 시간
     private String duration; // 소요 시간
     private int cost; // 비용
 }

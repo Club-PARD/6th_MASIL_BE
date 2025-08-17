@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.dto.resChat.ItemDto;
-import pard.server.com.nadri.plan.dto.resChat.ResponsePlaceDto;
+import pard.server.com.nadri.plan.dto.res.PlaceItemDto;
 
 @Entity
 @DiscriminatorValue("PLACE")
@@ -16,7 +15,7 @@ public class PlaceItem extends PlanItem{
     private String description;
     private String linkUrl;
 
-    public static PlaceItem from(ItemDto itemDto){
+    public static PlaceItem from(PlaceItemDto itemDto){
         return PlaceItem.builder()
                 .title(itemDto.getTitle())
                 .duration(itemDto.getDuration())

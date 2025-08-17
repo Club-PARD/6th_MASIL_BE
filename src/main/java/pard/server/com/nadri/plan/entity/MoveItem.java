@@ -1,18 +1,17 @@
 package pard.server.com.nadri.plan.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.dto.resChat.ItemDto;
+import pard.server.com.nadri.plan.dto.res.PlaceItemDto;
 
 @Entity
 @DiscriminatorValue("MOVE")
-@AllArgsConstructor @NoArgsConstructor @SuperBuilder
+@NoArgsConstructor @SuperBuilder
 @Getter
 public class MoveItem extends PlanItem{
-    public static MoveItem from(ItemDto itemDto){
+    public static MoveItem from(PlaceItemDto itemDto){
         return MoveItem.builder()
                 .title(itemDto.getTitle())
                 .duration(itemDto.getDuration())

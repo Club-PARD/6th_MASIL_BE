@@ -2,7 +2,6 @@ package pard.server.com.nadri.kakaoLocal.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.swing.text.Document;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

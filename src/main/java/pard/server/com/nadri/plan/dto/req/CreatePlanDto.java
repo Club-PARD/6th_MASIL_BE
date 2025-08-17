@@ -16,12 +16,9 @@ public class CreatePlanDto {
     private int headcount; // 인원수
     private String transportation; // 이동수단 (버스, 지하철, 도보중 택일)
     private String date; // "yyyy-MM-dd"
-    private String timeTable; // "hh:mm~hh:mm"
+    private String startTime; // "hh:mm~hh:mm"
     private String theme; // 여행 테마 (축제 문화, 원데이 클래스 체험, 자연 경관, 쇼핑중 택일)
 
-    public String getDescription(String theme){
-        return TravelTheme.fromLabel(theme).getDescription();
-    }
 
     // timeTable 형태보고 나눠서 반환하기 위한 애들.
 //    public String getStartTime(){

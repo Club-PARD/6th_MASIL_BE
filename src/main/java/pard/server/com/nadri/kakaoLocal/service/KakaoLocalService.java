@@ -4,9 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import pard.server.com.nadri.kakaoLocal.dto.Coord;
 import pard.server.com.nadri.kakaoLocal.dto.CoordinateRecord;
+import pard.server.com.nadri.kakaoLocal.dto.KakaoPlaceDto;
+import pard.server.com.nadri.kakaoLocal.dto.PlaceDto;
 import pard.server.com.nadri.openai.service.OpenAiService;
 import pard.server.com.nadri.plan.dto.req.CreatePlanDto;
+
+import java.net.URI;
+import java.util.List;
 
 @Service
 public class KakaoLocalService {
@@ -22,12 +28,10 @@ public class KakaoLocalService {
         this.openAiService = openAiService;
     }
 
-    public record Coord(String x, String y) {}
-
-    public void convertToCoordinate(CreatePlanDto createPlanDto){
+    public Coord convertToCoordinate(String origin){
         Coord coord = kakaoClient.get()
                 .uri(u -> u.path("/v2/local/search/address.json")
-                        .queryParam("query", createPlanDto.getOrigin())
+                        .queryParam("query", origin)
                         .queryParam("size", 1)
                         .build())
                 .retrieve()
@@ -38,11 +42,30 @@ public class KakaoLocalService {
                 })
                 .block();
         assert coord != null;
-        System.out.println(coord.x + coord.y);
-        searchByCategory(coord.x(), coord.y(), createPlanDto);
+
+        return coord;
     }
 
-    public void searchByCategory(String x, String y, CreatePlanDto createPlanDto){
+    public List<PlaceDto> searchByCategory(Coord coord, String code){
+        KakaoPlaceDto kakaoPlaceDto = kakaoClient.get()
+                .uri(u -> u.path("/v2/local/search/category.json")
+                        .queryParam("category_group_code", code)
+                        .queryParam("x", coord.x())
+                        .queryParam("y", coord.y())
+                        .queryParam("radius", 20000)
+                        .build())
+                .retrieve()
+                .bodyToMono(KakaoPlaceDto.class)
+                .block();
 
+        assert kakaoPlaceDto != null;
+        return kakaoPlaceDto.getDocuments();
+    }
+
+    public List<PlaceDto> searchByCategories(Coord coord, List<String> codes) {
+        return codes.stream()
+                .flatMap(code -> searchByCategory(coord, code).stream())
+                .distinct()
+                .toList();
     }
 }

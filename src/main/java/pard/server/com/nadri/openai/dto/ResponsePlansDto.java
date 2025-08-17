@@ -1,4 +1,4 @@
-package pard.server.com.nadri.plan.dto.resChat;
+package pard.server.com.nadri.openai.dto;
 
 import lombok.*;
 

@@ -13,7 +13,7 @@ public class KakaoLocalConfig {
     WebClient kakaoLocalWebClient(KakaoProps p){
         return WebClient.builder()
                 .baseUrl(p.getBaseUrl())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK" + p.getRestApiKey())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + p.getRestApiKey())
                 .build();
     }
 }
