@@ -3,18 +3,17 @@ package pard.server.com.nadri.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import pard.server.com.nadri.openai.OpenAiProps;
+import pard.server.com.nadri.kakaoLocal.KakaoProps;
+
 
 @Configuration
-public class OpenAiConfig {
+public class KakaoLocalConfig {
     @Bean
-    WebClient openAiWebClient(OpenAiProps p) {
+    WebClient kakaoLocalWebClient(KakaoProps p){
         return WebClient.builder()
                 .baseUrl(p.getBaseUrl())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + p.getApiKey())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK" + p.getRestApiKey())
                 .build();
     }
 }

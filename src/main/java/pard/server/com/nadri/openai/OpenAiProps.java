@@ -1,4 +1,4 @@
-package pard.server.com.nadri.config;
+package pard.server.com.nadri.openai;
 
 import lombok.Getter;
 import lombok.Setter;

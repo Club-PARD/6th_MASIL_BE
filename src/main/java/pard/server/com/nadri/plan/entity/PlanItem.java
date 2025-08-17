@@ -26,5 +26,4 @@ public abstract class PlanItem {
     private LocalTime startTime; // 시작 시간
     private String duration; // 소요 시간
     private int cost; // 비용
-
 }

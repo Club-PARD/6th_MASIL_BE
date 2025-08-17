@@ -5,19 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.dto.ResponseMealDto;
-
-import java.time.LocalTime;
+import pard.server.com.nadri.plan.dto.resChat.ItemDto;
 
 @Entity
 @DiscriminatorValue("MEAL")
 @AllArgsConstructor @NoArgsConstructor @SuperBuilder
 @Getter
 public class MealItem extends PlanItem {
-    public static MealItem from(ResponseMealDto responseMealDto) {
+    public static MealItem from(ItemDto itemDto) {
         return MealItem.builder()
-                .title(responseMealDto.getTitle())
-                .startTime(responseMealDto.getStartTime())
+                .title(itemDto.getTitle())
+                .startTime(itemDto.getStartTime())
                 .duration("60분 소요") // 고정
                 .build();
     }

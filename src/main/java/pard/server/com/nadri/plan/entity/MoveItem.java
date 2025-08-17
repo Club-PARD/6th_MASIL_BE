@@ -5,18 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.dto.ResponseMoveDto;
+import pard.server.com.nadri.plan.dto.resChat.ItemDto;
 
 @Entity
 @DiscriminatorValue("MOVE")
 @AllArgsConstructor @NoArgsConstructor @SuperBuilder
 @Getter
 public class MoveItem extends PlanItem{
-    public static MoveItem from(ResponseMoveDto responseMoveItem){
+    public static MoveItem from(ItemDto itemDto){
         return MoveItem.builder()
-                .title(responseMoveItem.getTitle())
-                .duration(responseMoveItem.getDuration())
-                .cost(responseMoveItem.getCost())
+                .title(itemDto.getTitle())
+                .duration(itemDto.getDuration())
+                .cost(itemDto.getCost())
                 .build();
     }
 }
