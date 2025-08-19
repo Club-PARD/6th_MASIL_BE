@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import pard.server.com.nadri.plan.dto.req.CreatePlanDto;
 import pard.server.com.nadri.plan.dto.res.PlanDetailsDto;
 import pard.server.com.nadri.plan.dto.res.ResponsePlansDto;
+import pard.server.com.nadri.plan.repository.PlansRepo;
 import pard.server.com.nadri.plan.service.PlanService;
 
 @RestController
@@ -21,6 +22,11 @@ public class PlanController {
 //    @PostMapping("/reload/{plansId}")
 //    public ResponsePlansDto reloadPlans(@PathVariable Long plansId){
 //        return planService.reloadPlans(plansId);
+//    }
+
+//    @GetMapping("/{plansId}")
+//    public ResponsePlansDto loadPlans(@PathVariable Long plansId){
+//        return planService.getPlansDto(plansId);
 //    }
 
     @GetMapping("/{planId}")

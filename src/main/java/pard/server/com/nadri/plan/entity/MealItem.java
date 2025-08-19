@@ -16,7 +16,7 @@ public class MealItem extends PlanItem {
         return MealItem.builder()
                 .title(itemDto.getTitle())
                 .startTime(itemDto.getStartTime())
-                .duration("60분 소요") // 고정
+                .duration("60") // 고정
                 .orderNum(itemDto.getOrderNum())
                 .build();
     }

@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    property-naming-strategy: LOWER_CAMEL_CASE
   application:
     name: nadri
 
@@ -37,7 +39,7 @@ server:
 openai:
   api-key: ${OPENAI_API_KEY:}
   base-url: "https://api.openai.com"
-  model: gpt-4.1-mini
+  model: gpt-5
 
 app:
   kakao: 

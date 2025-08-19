@@ -40,7 +40,7 @@ public class PlanService {
 
         // Plans 빼주고, 그거 바탕으로 ResponsePlansDto 만들기
         Plans plans = savePlans(plansDto);
-        return getPlansDto(plans);
+        return getPlansDto(plans.getId());
     }
 
     @Transactional
@@ -56,7 +56,9 @@ public class PlanService {
         return plansRepo.save(plans);
     }
 
-    public ResponsePlansDto getPlansDto(Plans plans){
+    public ResponsePlansDto getPlansDto(Long plansId){
+        Plans plans = plansRepo.findById(plansId).orElseThrow();
+
         // plans에 끼워넣을 planList
         List<ResponsePlanDto> responsePlanDtos= new ArrayList<>();
         plans.getPlans().forEach(plan -> {
@@ -106,7 +108,7 @@ public class PlanService {
 
     public PlanItemDto toItemDto(PlanItem planItem) {
         if (planItem instanceof MealItem m) {
-            return MealItemDto.of(m.getTitle(), m.getOrderNum(), "60분", m.getStartTime());
+            return MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
         } else if (planItem instanceof MoveItem mv) {
             return MoveItemDto.of(mv.getTitle(), mv.getOrderNum(), mv.getCost(), mv.getDuration(), mv.getStartTime());
         } else if (planItem instanceof PlaceItem p) {
