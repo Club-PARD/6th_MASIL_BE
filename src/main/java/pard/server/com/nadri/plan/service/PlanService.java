@@ -100,9 +100,9 @@ public class PlanService {
                 .build();
     }
 
-    public ResponsePlansDto reloadPlans(Long plansId){
-
-    }
+//    public ResponsePlansDto reloadPlans(Long plansId){
+//
+//    }
 
     public PlanItemDto toItemDto(PlanItem planItem) {
         if (planItem instanceof MealItem m) {

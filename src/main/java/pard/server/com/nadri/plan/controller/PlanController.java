@@ -18,10 +18,10 @@ public class PlanController {
         return planService.createPlan(createPlanDto);
     }
 
-    @PostMapping("/reload/{plansId}")
-    public ResponsePlansDto reloadPlans(@PathVariable Long plansId){
-        return planService.reloadPlans(plansId);
-    }
+//    @PostMapping("/reload/{plansId}")
+//    public ResponsePlansDto reloadPlans(@PathVariable Long plansId){
+//        return planService.reloadPlans(plansId);
+//    }
 
     @GetMapping("/{planId}")
     public PlanDetailsDto getDetails(@PathVariable Long planId){

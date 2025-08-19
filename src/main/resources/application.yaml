@@ -18,7 +18,7 @@ spring:
     resources:
       static-locations: file:uploads/images/ #file: ? ?? ??? ? ??? ? ???? ?? ???? ???? ????
     cors:
-      allowed-origins: http://localhost:3000
+      allowed-origins: http://169.213.137.35:3000
 
   jpa:
     show-sql: true
@@ -35,7 +35,7 @@ spring:
 server:
   port: 8080
 openai:
-  api-key: ${OPENAI_API_KEY:}     # ????? ??
+  api-key: ${OPENAI_API_KEY:}
   base-url: "https://api.openai.com"
   model: gpt-4.1-mini
 
