@@ -20,6 +20,7 @@ public class PlaceItem extends PlanItem{
         return PlaceItem.builder()
                 .title(itemDto.getTitle())
                 .duration(itemDto.getDuration())
+                .startTime(itemDto.getStartTime())
                 .cost(itemDto.getCost())
                 .orderNum(itemDto.getOrderNum())
                 .description(itemDto.getDescription())

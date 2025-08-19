@@ -89,8 +89,6 @@ public class PlanService {
                 .build();
     }
 
-
-
     public PlanDetailsDto getDetails(Long planId) {
         Plan plan = planRepo.findById(planId).orElseThrow();
         List<PlanItem> planItems = planItemRepo.findAllByPlan(plan);
@@ -100,6 +98,10 @@ public class PlanService {
         return PlanDetailsDto.builder()
                 .itemDtos(planItemDtos)
                 .build();
+    }
+
+    public ResponsePlansDto reloadPlans(Long plansId){
+
     }
 
     public PlanItemDto toItemDto(PlanItem planItem) {

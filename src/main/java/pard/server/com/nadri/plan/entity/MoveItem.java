@@ -18,6 +18,7 @@ public class MoveItem extends PlanItem{
                 .title(itemDto.getTitle())
                 .duration(itemDto.getDuration())
                 .cost(itemDto.getCost())
+                .startTime(itemDto.getStartTime())
                 .orderNum(itemDto.getOrderNum())
                 .build();
     }
