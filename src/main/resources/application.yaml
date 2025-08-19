@@ -36,7 +36,7 @@ server:
   port: 8080
 openai:
   api-key: ${OPENAI_API_KEY:}     # ????? ??
-  base-url: https://api.openai.com
+  base-url: "https://api.openai.com"
   model: gpt-4.1-mini
 
 app:

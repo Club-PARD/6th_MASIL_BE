@@ -5,17 +5,20 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pard.server.com.nadri.kakaoLocal.dto.Coord;
 import pard.server.com.nadri.kakaoLocal.dto.PlaceDto;
 import pard.server.com.nadri.kakaoLocal.service.KakaoLocalService;
-import pard.server.com.nadri.openai.dto.ResponsePlansDto;
+import pard.server.com.nadri.openai.dto.*;
 import pard.server.com.nadri.openai.service.OpenAiService;
 import pard.server.com.nadri.plan.dto.req.CreatePlanDto;
 import pard.server.com.nadri.plan.dto.res.*;
 import pard.server.com.nadri.plan.entity.*;
 import pard.server.com.nadri.plan.repository.PlanItemRepo;
 import pard.server.com.nadri.plan.repository.PlanRepo;
+import pard.server.com.nadri.plan.repository.PlansRepo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,20 +29,67 @@ public class PlanService {
     private final OpenAiService openAiService;
     private final PlanRepo planRepo;
     private final PlanItemRepo planItemRepo;
-    private final ObjectMapper om = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    private final PlansRepo plansRepo;
 
-    public void createPlan(CreatePlanDto createPlanDto) {
+    @Transactional
+    public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) {
         Coord coord = kakaoLocalService.convertToCoordinate(createPlanDto.getOrigin());
         List<String> codes = List.of("CT1", "AT4", "CE7");
         List<PlaceDto> placeDtos = kakaoLocalService.searchByCategories(coord, codes);
+        PlansDto plansDto = openAiService.callChatApi(createPlanDto, coord ,placeDtos);
 
-        try {
-            log.info("placeDtos =>\n{}", om.writeValueAsString(placeDtos));
-        } catch (Exception e) {
-            log.warn("log print failed", e);
-        }
-//        return openAiService.callChatApi(placeDtos);
+        // Plans 빼주고, 그거 바탕으로 ResponsePlansDto 만들기
+        Plans plans = savePlans(plansDto);
+        return getPlansDto(plans);
     }
+
+    @Transactional
+    public Plans savePlans(PlansDto plansDto){
+        Plans plans = new Plans();
+
+        plansDto.getPlanDtos().forEach(planDto -> {
+            Plan plan = Plan.from(planDto);
+            plan.savePlans(plans);
+            plans.getPlans().add(plan);
+        });
+
+        return plansRepo.save(plans);
+    }
+
+    public ResponsePlansDto getPlansDto(Plans plans){
+        // plans에 끼워넣을 planList
+        List<ResponsePlanDto> responsePlanDtos= new ArrayList<>();
+        plans.getPlans().forEach(plan -> {
+            // plan에 끼워넣을 item
+            List<ResponseItemDto> responseItemDtos = new ArrayList<>();
+
+            plan.getPlanItems().forEach(planItem -> {
+                ResponseItemDto responseItemDto = ResponseItemDto
+                        .builder()
+                        .title(planItem.getTitle())
+                        .orderNum(planItem.getOrderNum())
+                        .build();
+
+                // item 만들었으면 item list에 add.
+                responseItemDtos.add(responseItemDto);
+            });
+
+            ResponsePlanDto responsePlanDto = ResponsePlanDto
+                    .builder().planId(plan.getId())
+                    .order(plan.getOrder())
+                    .endTime(plan.getEndTime())
+                    .itemDtos(responseItemDtos) // 이번 턴의 plan의 완성된 itemList들을 끼워넣기
+                    .build();
+
+            responsePlanDtos.add(responsePlanDto); // Plan 만들었으면 PlanList에 추가
+        });
+        return ResponsePlansDto.builder()
+                .responsePlanDtos(responsePlanDtos) // planList 완성됐으면 plans에 추가
+                .plansId(plans.getId())
+                .build();
+    }
+
+
 
     public PlanDetailsDto getDetails(Long planId) {
         Plan plan = planRepo.findById(planId).orElseThrow();
@@ -48,39 +98,17 @@ public class PlanService {
         List<PlanItemDto> planItemDtos = planItems.stream().map(this::toItemDto).toList();
 
         return PlanDetailsDto.builder()
-                .itemDtos(planItemDtos).build();
-
+                .itemDtos(planItemDtos)
+                .build();
     }
 
     public PlanItemDto toItemDto(PlanItem planItem) {
         if (planItem instanceof MealItem m) {
-            return MealItemDto.builder()
-                    .title(planItem.getTitle())
-                    .orderNum(planItem.getOrderNum())
-                    .duration("60분")
-                    .startTime(planItem.getStartTime())
-                    .endTime(planItem.getEndTime())
-                    .build();
+            return MealItemDto.of(m.getTitle(), m.getOrderNum(), "60분", m.getStartTime());
         } else if (planItem instanceof MoveItem mv) {
-            return MoveItemDto.builder()
-                    .title(planItem.getTitle())
-                    .orderNum(planItem.getOrderNum())
-                    .duration(planItem.getDuration())
-                    .startTime(planItem.getStartTime())
-                    .endTime(planItem.getEndTime())
-                    .cost(planItem.getCost())
-                    .build();
+            return MoveItemDto.of(mv.getTitle(), mv.getOrderNum(), mv.getCost(), mv.getDuration(), mv.getStartTime());
         } else if (planItem instanceof PlaceItem p) {
-            return PlaceItemDto.builder()
-                    .title(planItem.getTitle())
-                    .orderNum(planItem.getOrderNum())
-                    .duration(planItem.getDuration())
-                    .startTime(planItem.getStartTime())
-                    .endTime(planItem.getEndTime())
-                    .cost(planItem.getCost())
-                    .linkUrl(p.getLinkUrl())
-                    .description(p.getDescription())
-                    .build();
+            return PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
             }
         {
             throw new IllegalStateException("Unknown PlanItem subtype: " + planItem.getClass());

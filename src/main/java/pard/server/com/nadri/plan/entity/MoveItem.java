@@ -4,18 +4,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.dto.res.PlaceItemDto;
+import pard.server.com.nadri.openai.dto.MoveItemDto;
+import pard.server.com.nadri.openai.dto.PlaceItemDto;
+import pard.server.com.nadri.openai.dto.PlanItemDto;
 
 @Entity
 @DiscriminatorValue("MOVE")
 @NoArgsConstructor @SuperBuilder
 @Getter
 public class MoveItem extends PlanItem{
-    public static MoveItem from(PlaceItemDto itemDto){
+    public static MoveItem from(MoveItemDto itemDto){
         return MoveItem.builder()
                 .title(itemDto.getTitle())
                 .duration(itemDto.getDuration())
                 .cost(itemDto.getCost())
+                .orderNum(itemDto.getOrderNum())
                 .build();
     }
 }

@@ -6,7 +6,6 @@ import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor @Builder
 @Getter @Setter
-public class ResponsePlanDto {
-    private String order;
-    private List<ItemDto> itemDtos;
+public class PlansDto { // 가이드 세트 (3개)
+    private List<PlanDto> planDtos;
 }
