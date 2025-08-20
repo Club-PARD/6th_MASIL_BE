@@ -11,12 +11,11 @@
 
 <br/>
 
-<img src="./public/banner/1.svg">
-<img src="./public/banner/2.svg">
-<img src="./public/banner/3.svg">
-<img src="./public/banner/4.svg">
-<img src="./public/banner/5.svg">
-
+![1.svg](src/main/resources/templates/1.svg)
+![2.svg](src/main/resources/templates/2.svg)
+![3.svg](src/main/resources/templates/3.svg)
+![4.svg](src/main/resources/templates/4.svg)
+![5.svg](src/main/resources/templates/5.svg)
 <br/>
 
 </div>
