@@ -11,11 +11,12 @@
 
 <br/>
 
-<img src="./public/banner/1.svg">
-<img src="./public/banner/2.svg">
-<img src="./public/banner/3.svg">
-<img src="./public/banner/4.svg">
-<img src="./public/banner/5.svg">
+<img src="./resources/templates/1.svg">
+<img src="./resources/templates/2.svg">
+<img src="./resources/templates/3.svg">
+<img src="./resources/templates/4.svg">
+<img src="./resources/templates/5.svg">
+
 
 <br/>
 
