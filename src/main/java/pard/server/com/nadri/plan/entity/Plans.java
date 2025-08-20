@@ -13,8 +13,9 @@ import java.util.List;
 @Entity
 public class Plans {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @OneToMany(mappedBy="plans", cascade= CascadeType.ALL, orphanRemoval=true)
     private List<Plan> plans = new ArrayList<>();
 }
