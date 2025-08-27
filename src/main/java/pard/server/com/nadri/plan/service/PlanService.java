@@ -62,7 +62,7 @@ public class PlanService {
         // plans에 끼워넣을 planList
         List<ResponsePlanDto> responsePlanDtos= new ArrayList<>();
         plans.getPlans().forEach(plan -> {
-            // plan에 끼워넣을 item
+            // plan에 끼워넣을 itemList
             List<ResponseItemDto> responseItemDtos = new ArrayList<>();
 
             plan.getPlanItems().forEach(planItem -> {
@@ -72,7 +72,7 @@ public class PlanService {
                         .orderNum(planItem.getOrderNum())
                         .build();
 
-                // item 만들었으면 item list에 add.
+                // item 만들었으면 itemList에 add.
                 responseItemDtos.add(responseItemDto);
             });
 
@@ -101,10 +101,6 @@ public class PlanService {
                 .itemDtos(planItemDtos)
                 .build();
     }
-
-//    public ResponsePlansDto reloadPlans(Long plansId){
-//
-//    }
 
     public PlanItemDto toItemDto(PlanItem planItem) {
         if (planItem instanceof MealItem m) {
