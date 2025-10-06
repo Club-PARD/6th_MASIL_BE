@@ -177,7 +177,7 @@ public class OpenAiService {
 
         // ---------- 3) 호출 ----------
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-5",
+                "model", "gpt-5-nano",
                 "instructions", "Return ONLY valid JSON matching the schema. No extra text.",
                 "input", prompt,
                 "text", Map.of("format", Map.of(
@@ -203,17 +203,24 @@ public class OpenAiService {
                 .block();
 
         JsonNode root = mapper.readTree(responseJson);
+        log.info("OpenAI response -> root: {}", root);
 
-        String text = root.path("output").get(1).path("content").get(0).path("text").asText();
+        JsonNode output = root.path("output");
+
+        JsonNode finalOutput = "message".equals(output.get(0).path("type").asText()) && !output.isEmpty()
+                ? output.get(0)
+                : output.get(1);
+
+        String text = finalOutput.path("content").get(0).path("text").asText();
+
         String pretty = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(mapper.readTree(text));
 
         log.info("실제 모델 출력(JSON):\n{}", pretty);
 
-        PlansDto plansDto = mapper.readValue(pretty, PlansDto.class);
+        PlansDto plansDto = mapper.readValue(text, PlansDto.class);
 
         return plansDto;
-        // ---------- 4) 파싱 ----------
     }
         // 플랜 간 장소 중복 제거
 

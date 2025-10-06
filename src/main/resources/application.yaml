@@ -39,7 +39,7 @@ server:
 openai:
   api-key: ${OPENAI_API_KEY:}
   base-url: "https://api.openai.com"
-  model: gpt-5
+  model: gpt-5-nano
 
 app:
   kakao: 
