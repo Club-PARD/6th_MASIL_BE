@@ -5,13 +5,11 @@
 
 <p align="center">
   <a href="https://naver.com">
-    <img alt="마실" title="마실" src="./public/logo.svg" width="45%">
+<img alt="마실" title="마실" src="src/main/resources/templates/logo.svg">
   </a>
 </p>
 
 <br/>
-
-![logo.svg](../../../Downloads/logo.svg)
 
 ![1.svg](src/main/resources/templates/1.svg)
 ![2.svg](src/main/resources/templates/2.svg)
@@ -43,6 +41,3 @@
 
 ----
 ----
-
-<img src="./public/quote.jpeg" />
-
