@@ -5,12 +5,11 @@
 
 <p align="center">
   <a href="https://naver.com">
-<img alt="마실" title="마실" src="src/main/resources/templates/logo.svg">
+<img alt="마실" title="마실" src="src/main/resources/templates/logo.svg", width="45%">
   </a>
 </p>
 
 <br/>
-
 ![1.svg](src/main/resources/templates/1.svg)
 ![2.svg](src/main/resources/templates/2.svg)
 ![3.svg](src/main/resources/templates/3.svg)
@@ -21,8 +20,8 @@
 
 </div>
 
-# 👥 Contributors 
-> 🎠 함께 만든 사람들 
+# 👥 Contributors
+> 🎠 함께 만든 사람들
 # 팀 멤버
 
 | 이모지 | 이름 | 역할 |
@@ -33,9 +32,9 @@
 | 🐒 | 황유민 | 프론트엔드 |
 | 🎨 | 최옥토 | 프론트엔드 |
 
-# 🙏 Acknowledgements 
+# 🙏 Acknowledgements
 > **This was made possible by** </br>
-<a href="https://we-pard.com/" style="display:flex;flex-direction:column;"> 
+<a href="https://we-pard.com/" style="display:flex;flex-direction:column;">
 <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExampoeG5sZDN4ZHhoNWRpMXRsdDZlcjhzczk4eTE0d2dyajB6YWJjeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SwO3hAK7Jt5nYD0L1z/giphy.gif" width="520" height="140" />
 <a/>
 
