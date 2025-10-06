@@ -19,13 +19,4 @@ public class CreatePlanDto {
     private String timeTable; // "hh:mm~hh:mm"
     private String theme; // 여행 테마 (축제 문화, 원데이 클래스 체험, 자연 경관, 쇼핑중 택일)
     private boolean isOneWay; // 편도 왕복 true가 편도, false가 왕복
-
-
-    // timeTable 형태보고 나눠서 반환하기 위한 애들.
-//    public String getStartTime(){
-//
-//    }
-//    public String getEndTime(){
-//
-//    }
 }

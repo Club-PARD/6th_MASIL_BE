@@ -1,7 +1,6 @@
 package pard.server.com.nadri.plan.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class PlanService {
     private final PlansRepo plansRepo;
 
     @Transactional
-    public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) {
+    public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) throws JsonProcessingException {
         Coord coord = kakaoLocalService.convertToCoordinate(createPlanDto.getOrigin());
         List<String> codes = List.of("CT1", "AT4", "CE7");
         List<PlaceDto> placeDtos = kakaoLocalService.searchByCategories(coord, codes);
@@ -103,12 +102,12 @@ public class PlanService {
     }
 
     public PlanItemDto toItemDto(PlanItem planItem) {
-        if (planItem instanceof MealItem m) {
-            return MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
-        } else if (planItem instanceof MoveItem mv) {
-            return MoveItemDto.of(mv.getTitle(), mv.getOrderNum(), mv.getCost(), mv.getDuration(), mv.getStartTime());
-        } else if (planItem instanceof PlaceItem p) {
-            return PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
+        if (planItem instanceof PlanItem.MealItem m) {
+            return PlanItemDto.MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
+        } else if (planItem instanceof PlanItem.MoveItem mv) {
+            return PlanItemDto.MoveItemDto.of(mv.getTitle(), mv.getOrderNum(), mv.getCost(), mv.getDuration(), mv.getStartTime());
+        } else if (planItem instanceof PlanItem.PlaceItem p) {
+            return PlanItemDto.PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
             }
         {
             throw new IllegalStateException("Unknown PlanItem subtype: " + planItem.getClass());

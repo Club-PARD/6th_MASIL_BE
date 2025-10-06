@@ -1,28 +1,86 @@
-package pard.server.com.nadri.openai.dto;
-
+package pard.server.com.nadri.openai.dto;// 부모
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.plan.entity.MealItem;
-import pard.server.com.nadri.plan.entity.MoveItem;
-import pard.server.com.nadri.plan.entity.PlaceItem;
-import pard.server.com.nadri.plan.entity.PlanItem;
-
 import java.time.LocalTime;
+import lombok.*;
 
-@AllArgsConstructor @NoArgsConstructor @SuperBuilder
-@Getter @Setter
-public abstract class PlanItemDto { // 지피티가 만들 가장 최소단위 dto, 이걸로 PlansItem 만들고 그걸로 save.
-    private String title; // 제목: 식사일 경우에 아침식사 / 점심 식사 / 저녁 식사 / 셋중 하나,
-    // 이동일 경우에 버스 이동 / 지하철 이동 / 자차 이동 / 도보 이동 넷중 하나.
+@Getter @Setter @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true) // 모르는 필드 들어와도 안전
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "type", visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PlanItemDto.MoveItemDto.class,  name = "MOVE"),
+        @JsonSubTypes.Type(value = PlanItemDto.MealItemDto.class,  name = "MEAL"),
+        @JsonSubTypes.Type(value = PlanItemDto.PlaceItemDto.class, name = "PLACE")
+})
+public abstract class PlanItemDto {
+    private String type; // MOVE | MEAL | PLACE
+    private String title;
 
     @JsonProperty("order_num")
-    private int orderNum; // 일정 순서
+    private Integer orderNum;
+
+    // 모델은 "60" 같은 문자열로 보냄
+    private String duration;
 
     @JsonProperty("start_time")
-    @JsonFormat(pattern = "HH:mm")   // 문자열 "HH:mm"을 LocalTime으로
-    private LocalTime startTime; // 시작 시간
-    private String duration; // 소요 시간 (식사시간 경우에 소요시간 60분 고정)
-    private Integer cost; // 비용 (식사시간 경우에 그냥 null 해두기)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    private LocalTime startTime;
+
+    private Integer cost;
+
+    // ----------------- 서브 클래스들 -----------------
+
+    @Getter @Setter @NoArgsConstructor
+    public static class MealItemDto extends PlanItemDto {
+        public static MealItemDto of(String title, int orderNum, String duration, LocalTime startTime) {
+            MealItemDto m = new MealItemDto();
+            m.setType("MEAL");
+            m.setTitle(title);
+            m.setOrderNum(orderNum);
+            m.setDuration(duration);
+            m.setStartTime(startTime);
+            return m;
+        }
+    }
+
+    @Getter @Setter @NoArgsConstructor
+    public static class MoveItemDto extends PlanItemDto {
+        public static MoveItemDto of(String title, int orderNum, Integer cost, String duration, LocalTime startTime) {
+            MoveItemDto mv = new MoveItemDto();
+            mv.setType("MOVE");
+            mv.setTitle(title);
+            mv.setOrderNum(orderNum);
+            mv.setCost(cost);
+            mv.setDuration(duration);
+            mv.setStartTime(startTime);
+            return mv;
+        }
+    }
+
+    @Getter @Setter @NoArgsConstructor
+    public static class PlaceItemDto extends PlanItemDto {
+        private String description;
+
+        @JsonProperty("link_url")
+        private String linkUrl;
+
+        @JsonProperty("place_name")
+        private String placeName;
+
+        public static PlaceItemDto of(String title, int orderNum, Integer cost, String duration, LocalTime startTime,
+                                      String description, String linkUrl, String placeName) {
+            PlaceItemDto p = new PlaceItemDto();
+            p.setType("PLACE");
+            p.setTitle(title);
+            p.setOrderNum(orderNum);
+            p.setCost(cost);
+            p.setDuration(duration);
+            p.setStartTime(startTime);
+            p.setDescription(description);
+            p.setLinkUrl(linkUrl);
+            p.setPlaceName(placeName);
+            return p;
+        }
+    }
 }

@@ -2,6 +2,7 @@ package pard.server.com.nadri.openai.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -39,7 +40,7 @@ public class OpenAiService {
     }
 
     /** 메인: 좌표/테마/식사/이동 규칙 포함해서 3개의 Plan 생성 */
-    public PlansDto callChatApi(CreatePlanDto req, Coord coord, List<PlaceDto> placeDtos) {
+    public PlansDto callChatApi(CreatePlanDto req, Coord coord, List<PlaceDto> placeDtos) throws JsonProcessingException {
 
         // ---------- 0) seed 직렬화 + 조회 맵 ----------
         final String seedJson;
@@ -49,32 +50,34 @@ public class OpenAiService {
             throw new RuntimeException("placeDtos 직렬화 실패", e);
         }
 
-        final Map<String, PlaceDto> seedByUrl = placeDtos.stream()
-                .filter(p -> p.getPlaceUrl() != null)
-                .collect(Collectors.toMap(PlaceDto::getPlaceUrl, Function.identity(), (a, b) -> a));
-
-        final List<String> allowedUrls = placeDtos.stream()
-                .map(PlaceDto::getPlaceUrl)
-                .filter(Objects::nonNull)
-                .toList();
-
         // ---------- 1) JSON 스키마 ----------
         Map<String, Object> itemSchema = Map.of(
                 "type", "object",
                 "additionalProperties", false,
                 "properties", Map.ofEntries(
+                        // 필수 프로퍼티
+                        entry("type", Map.of("type", "string")),
                         entry("title", Map.of("type", "string")),
                         entry("start_time", Map.of("type", "string", "pattern", "^(?:[01]\\d|2[0-3]):[0-5]\\d$")),
                         entry("duration", Map.of("type", "string")),      // 분 단위 문자열
                         entry("order_num", Map.of("type", "integer")),
-                        entry("cost", Map.of("type", "integer")),
-                        entry("place_url", allowedUrls.isEmpty()
-                                ? Map.of("type", List.of("string", "null"))
-                                : Map.of("type", List.of("string", "null"), "enum", allowedUrls)),
-                        entry("placeName", Map.of("type", List.of("string", "null"))),
-                        entry("description", Map.of("type", List.of("string", "null"), "minLength", 0, "maxLength", 200))
+
+                        // 선택 프로퍼티
+                        entry("cost", Map.of("type", List.of("integer", "null"))),
+                        entry("link_url", Map.of("type", List.of("string", "null"))),
+                        entry("place_name", Map.of("type", List.of("string", "null"))),
+                        entry("description", Map.of("type", List.of("string", "null"),
+                                "minLength", 0, "maxLength", 200))
                 ),
-                "required", List.of("title", "start_time", "duration", "order_num", "cost", "place_url", "placeName", "description")
+                "required", List.of("type",
+                        "title",
+                        "start_time",
+                        "duration",
+                        "order_num",
+                        "cost",
+                        "link_url",
+                        "place_name",
+                        "description")
         );
 
         Map<String, Object> planSchema = Map.of(
@@ -174,16 +177,15 @@ public class OpenAiService {
 
         // ---------- 3) 호출 ----------
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-4o-mini",
+                "model", "gpt-5",
                 "instructions", "Return ONLY valid JSON matching the schema. No extra text.",
                 "input", prompt,
                 "text", Map.of("format", Map.of(
                         "type", "json_schema",
                         "name", "PlansDto",
-                        "strict", false,
+                        "strict", true,
                         "schema", rootSchema
-                )),
-                "temperature", 0
+                ))
         );
 
         String responseJson = client.post()
@@ -200,8 +202,17 @@ public class OpenAiService {
                 })
                 .block();
 
-        log.info("OpenAI 전체 응답(raw): {}", responseJson);
+        JsonNode root = mapper.readTree(responseJson);
 
+        String text = root.path("output").get(1).path("content").get(0).path("text").asText();
+        String pretty = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(mapper.readTree(text));
+
+        log.info("실제 모델 출력(JSON):\n{}", pretty);
+
+        PlansDto plansDto = mapper.readValue(pretty, PlansDto.class);
+
+        return plansDto;
         // ---------- 4) 파싱 ----------
     }
         // 플랜 간 장소 중복 제거
@@ -262,34 +273,4 @@ public class OpenAiService {
 
 
     // 식사 창 상수
-
-
-    // -------------------- 모델 응답 파싱용 DTO --------------------
-    @Data @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GenItem {
-        private String title;
-        private String duration;
-        @JsonProperty("start_time") private String startTime;
-        @JsonProperty("order_num") private Integer orderNum;
-        private Integer cost;
-
-        @JsonProperty("place_url") private String placeUrl;
-        private String placeName;
-        private String description;
-    }
-
-    @Data @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GenPlan {
-        private String order;
-        private List<GenItem> planItemDtos;
-    }
-
-    @Data @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GenRoot {
-        private List<GenPlan> planDtos;
-    }
-
 }

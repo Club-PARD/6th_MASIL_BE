@@ -39,6 +39,7 @@ public class Plan {
             planItem.savePlan(plan);
             planItems.add(planItem);
         });
+
         plan.endTime = planDto.getEndTime();
         plan.order = planDto.getOrder();
         plan.planItems = planItems;
