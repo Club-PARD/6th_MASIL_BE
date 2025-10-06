@@ -51,53 +51,7 @@ public class OpenAiService {
         }
 
         // ---------- 1) JSON 스키마 ----------
-        Map<String, Object> itemSchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", Map.ofEntries(
-                        // 필수 프로퍼티
-                        entry("type", Map.of("type", "string")),
-                        entry("title", Map.of("type", "string")),
-                        entry("start_time", Map.of("type", "string", "pattern", "^(?:[01]\\d|2[0-3]):[0-5]\\d$")),
-                        entry("duration", Map.of("type", "string")),      // 분 단위 문자열
-                        entry("order_num", Map.of("type", "integer")),
-
-                        // 선택 프로퍼티
-                        entry("cost", Map.of("type", List.of("integer", "null"))),
-                        entry("link_url", Map.of("type", List.of("string", "null"))),
-                        entry("place_name", Map.of("type", List.of("string", "null"))),
-                        entry("description", Map.of("type", List.of("string", "null"),
-                                "minLength", 0, "maxLength", 200))
-                ),
-                "required", List.of("type",
-                        "title",
-                        "start_time",
-                        "duration",
-                        "order_num",
-                        "cost",
-                        "link_url",
-                        "place_name",
-                        "description")
-        );
-
-        Map<String, Object> planSchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", Map.of(
-                        "order", Map.of("type", "string", "enum", List.of("1", "2", "3")),
-                        "planItemDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
-                ),
-                "required", List.of("order", "planItemDtos")
-        );
-
-        Map<String, Object> rootSchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", Map.of(
-                        "planDtos", Map.of("type", "array", "minItems", 3, "maxItems", 3, "items", planSchema)
-                ),
-                "required", List.of("planDtos")
-        );
+        Map<String, Object> rootSchema = getStringObjectMap();
 
         // ---------- 2) 프롬프트 ----------
         final String tt = Optional.ofNullable(req.getTimeTable()).map(String::trim).filter(s -> !s.isEmpty()).orElse("09:00~18:00");
@@ -107,6 +61,10 @@ public class OpenAiService {
                 당신은 여행 일정 기획자입니다. 아래 입력과 seed_places(좌표 포함)만으로 서로 다른 정확히 3개의 Plan을 만드세요.
                 각 Plan은 3~10개의 아이템으로 구성되며, 아이템은 세 종류뿐입니다:
                 - "이동" (MOVE) : title 은 반드시 "이동"
+                MOVE:
+                   - 편도: 출발→첫 PLACE 1개, 
+                   - 왕복: 출발→첫 PLACE + 마지막 PLACE→출발 2개만.
+                   - duration/cost 는 좌표거리 기반(하버사인 + 규칙).
                 - 식사 (MEAL)  : title 은 반드시 "아침식사" / "점심식사" / "저녁식사"
                 - 장소 (PLACE) : title 은 “{placeName}에서 전시 관람/공연 관람/체험/방문 …” 같은 자연스러운 문장
                 
@@ -126,11 +84,6 @@ public class OpenAiService {
                    - 아침 08:00~10:59, 점심 11:00~15:29, 저녁 17:30~21:59
                    - timeTable과 겹치는 시간대마다 '정확히 한 번' 넣기, duration="60".
                    - 식사 직전/직후 "이동" 금지.
-                
-                2) MOVE:
-                   - title="이동".
-                   - 편도: 출발→첫 PLACE 1개, 왕복: 출발→첫 PLACE + 마지막 PLACE→출발 2개만.
-                   - duration/cost 는 좌표거리 기반(하버사인 + 규칙).
                 
                 3) PLACE:
                    - seed_places에서만 선택, place_url/placeName/description 필수.
@@ -222,7 +175,58 @@ public class OpenAiService {
 
         return plansDto;
     }
-        // 플랜 간 장소 중복 제거
+
+    private static Map<String, Object> getStringObjectMap() {
+        Map<String, Object> itemSchema = Map.of(
+                "type", "object",
+                "additionalProperties", false,
+                "properties", Map.ofEntries(
+                        // 필수 프로퍼티
+                        entry("type", Map.of("type", "string")),
+                        entry("title", Map.of("type", "string")),
+                        entry("start_time", Map.of("type", "string", "pattern", "^(?:[01]\\d|2[0-3]):[0-5]\\d$")),
+                        entry("duration", Map.of("type", "string")),      // 분 단위 문자열
+                        entry("order_num", Map.of("type", "integer")),
+
+                        // 선택 프로퍼티
+                        entry("cost", Map.of("type", List.of("integer", "null"))),
+                        entry("link_url", Map.of("type", List.of("string", "null"))),
+                        entry("place_name", Map.of("type", List.of("string", "null"))),
+                        entry("description", Map.of("type", List.of("string", "null"),
+                                "minLength", 0, "maxLength", 200))
+                ),
+                "required", List.of("type",
+                        "title",
+                        "start_time",
+                        "duration",
+                        "order_num",
+                        "cost",
+                        "link_url",
+                        "place_name",
+                        "description")
+        );
+
+        Map<String, Object> planSchema = Map.of(
+                "type", "object",
+                "additionalProperties", false,
+                "properties", Map.of(
+                        "order", Map.of("type", "string", "enum", List.of("1", "2", "3")),
+                        "planItemDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
+                ),
+                "required", List.of("order", "planItemDtos")
+        );
+
+        Map<String, Object> rootSchema = Map.of(
+                "type", "object",
+                "additionalProperties", false,
+                "properties", Map.of(
+                        "planDtos", Map.of("type", "array", "minItems", 3, "maxItems", 3, "items", planSchema)
+                ),
+                "required", List.of("planDtos")
+        );
+        return rootSchema;
+    }
+    // 플랜 간 장소 중복 제거
 
         // (E) PlanDto 구성 + 이동정책 + endTime 세팅
 

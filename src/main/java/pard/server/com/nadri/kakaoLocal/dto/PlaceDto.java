@@ -33,6 +33,9 @@ public class PlaceDto {
     @JsonProperty("place_url")
     private final String placeUrl;
 
+    @JsonProperty("category_name")
+    private final String categoryName;
+
     @JsonProperty("road_address_name")
     private final String roadAddressName;
 

@@ -46,12 +46,11 @@ public abstract class PlanItemDto {
 
     @Getter @Setter @NoArgsConstructor
     public static class MoveItemDto extends PlanItemDto {
-        public static MoveItemDto of(String title, int orderNum, Integer cost, String duration, LocalTime startTime) {
+        public static MoveItemDto of(String title, int orderNum, String duration, LocalTime startTime) {
             MoveItemDto mv = new MoveItemDto();
             mv.setType("MOVE");
             mv.setTitle(title);
             mv.setOrderNum(orderNum);
-            mv.setCost(cost);
             mv.setDuration(duration);
             mv.setStartTime(startTime);
             return mv;

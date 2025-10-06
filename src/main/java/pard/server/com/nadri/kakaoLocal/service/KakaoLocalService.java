@@ -46,13 +46,14 @@ public class KakaoLocalService {
         return coord;
     }
 
-    public List<PlaceDto> searchByCategory(Coord coord, String code){
+    public List<PlaceDto> searchByKeyword(Coord coord, String keyword){
         KakaoPlaceDto kakaoPlaceDto = kakaoClient.get()
-                .uri(u -> u.path("/v2/local/search/category.json")
-                        .queryParam("category_group_code", code)
+                .uri(u -> u.path("/v2/local/search/keyword.json")
+                        .queryParam("query", keyword)
                         .queryParam("x", coord.x())
                         .queryParam("y", coord.y())
                         .queryParam("radius", 20000)
+                        .queryParam("sort", "distance")
                         .build())
                 .retrieve()
                 .bodyToMono(KakaoPlaceDto.class)
@@ -62,9 +63,9 @@ public class KakaoLocalService {
         return kakaoPlaceDto.getDocuments();
     }
 
-    public List<PlaceDto> searchByCategories(Coord coord, List<String> codes) {
-        return codes.stream()
-                .flatMap(code -> searchByCategory(coord, code).stream())
+    public List<PlaceDto> searchByKeywords(Coord coord, List<String> keywords ) {
+        return keywords.stream()
+                .flatMap(keyword -> searchByKeyword(coord, keyword).stream())
                 .distinct()
                 .toList();
     }

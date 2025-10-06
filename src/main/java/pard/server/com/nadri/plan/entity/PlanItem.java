@@ -68,7 +68,6 @@ public abstract class PlanItem {
             return MoveItem.builder()
                     .title(itemDto.getTitle())
                     .duration(itemDto.getDuration())
-                    .cost(itemDto.getCost())
                     .startTime(itemDto.getStartTime())
                     .orderNum(itemDto.getOrderNum())
                     .build();

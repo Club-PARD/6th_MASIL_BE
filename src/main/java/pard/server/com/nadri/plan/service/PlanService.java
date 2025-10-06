@@ -33,13 +33,23 @@ public class PlanService {
     @Transactional
     public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) throws JsonProcessingException {
         Coord coord = kakaoLocalService.convertToCoordinate(createPlanDto.getOrigin());
-        List<String> codes = List.of("CT1", "AT4", "CE7");
-        List<PlaceDto> placeDtos = kakaoLocalService.searchByCategories(coord, codes);
+        List<String> keywords = makeKeywords(createPlanDto.getTheme());
+        List<PlaceDto> placeDtos = kakaoLocalService.searchByKeywords(coord, keywords);
         PlansDto plansDto = openAiService.callChatApi(createPlanDto, coord ,placeDtos);
 
         // Plans 빼주고, 그거 바탕으로 ResponsePlansDto 만들기
         Plans plans = savePlans(plansDto);
         return getPlansDto(plans.getId());
+    }
+
+    public List<String> makeKeywords(String theme){
+        return switch (theme) {
+            case "탐방" -> List.of("박물관", "축제");
+            case "체험" -> List.of("원데이 클래스", "공방");
+            case "관광" -> List.of("관광", "자연");
+            case "쇼핑" -> List.of("백화점", "소품점");
+            default -> null;
+        };
     }
 
     @Transactional
@@ -105,7 +115,7 @@ public class PlanService {
         if (planItem instanceof PlanItem.MealItem m) {
             return PlanItemDto.MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
         } else if (planItem instanceof PlanItem.MoveItem mv) {
-            return PlanItemDto.MoveItemDto.of(mv.getTitle(), mv.getOrderNum(), mv.getCost(), mv.getDuration(), mv.getStartTime());
+            return PlanItemDto.MoveItemDto.of(mv.getTitle(), mv.getOrderNum(),mv.getDuration(), mv.getStartTime());
         } else if (planItem instanceof PlanItem.PlaceItem p) {
             return PlanItemDto.PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
             }
