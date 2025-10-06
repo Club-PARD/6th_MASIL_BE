@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pard.server.com.nadri.openai.dto.PlanDto;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class Plan {
     @JoinColumn(name = "plans_id")
     private Plans plans;
 
-    private String endTime;
+    private LocalTime endTime;
 
     @Column(name = "sort_order")   // ✅ 예약어 회피
     private String order;
@@ -40,7 +42,6 @@ public class Plan {
             planItems.add(planItem);
         });
 
-        plan.endTime = planDto.getEndTime();
         plan.order = planDto.getOrder();
         plan.planItems = planItems;
 

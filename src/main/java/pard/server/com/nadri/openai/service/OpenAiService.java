@@ -62,10 +62,8 @@ public class OpenAiService {
                 각 Plan은 3~10개의 아이템으로 구성되며, 아이템은 세 종류뿐입니다:
                 - "이동" (MOVE) : title 은 반드시 "이동"
                 MOVE:
-                   - 편도: 출발→첫 PLACE 1개, 
-                   - 왕복: 출발→첫 PLACE + 마지막 PLACE→출발 2개만.
-                   - duration
-                   - cost
+                   - 왕복: inOneWay가 false일 때, 마지막 일정은 무조건 이동. 
+                   - duration은 위치에 따라 5~20분 사이로 결정.
                
                - 식사 (MEAL)  : title 은 반드시 "아침식사" / "점심식사" / "저녁식사"
                MEAL:
@@ -78,21 +76,25 @@ public class OpenAiService {
                    - seed_places에서만 선택, place_url/placeName/description 필수.
                    - title 은 자연스러운 문장.
                    - **duration 최대 150분**을 넘기지 말 것.
+                   - duration 최소 60분 이상.
                    - 영화관이라면 duration 120으로 고정, cost는 14000원으로 고정. 
                    - 가능하면 입장료(cost) 기입. (카페/장소는 **최소 비용 보정**)
                    -  ("박물관","미술관","전시")  12000;
                    - ("공연","연극","콘서트","뮤지컬") 30000;
                    - ("체험","공방","키트") 15000;
-                   -("테마파크","놀이공원") 35000;
                    - ("전망대","스카이","타워") 10000;
                    - ("카페","디저트") 8000;
                    -("쇼핑","백화점","몰","마켓") 0;
                    
                [모든 Item 공통]
-                - start_time(시작시간) 에 duration(소요시간)이 지나고 난 end_time을 계산해줘.
-                - end_time은 각PlanItemDto의 필드가 되지는 않지만, PlanDto의 end_time을 위해 계산되어야 해.  
-                - end_time은 HH:mm 형식으로 맞춰줘.
-              
+                "type", "title", "start_time", "duration", "order_num" 필드는 모든 Item들에게 꼭 있어야 하는 필드.
+                "cost", "link_url", "place_name", "description" 필드는 오직 PlaceItem을 위한 필드. MOVE와 MEAL에는 이 필드를 고려할 필요 없음.
+                
+                - start_time(시작시간) + duration(소요시간)이 일정이 끝난 시간.
+                - 각각의 일정 시작시간(start_time)은 이전 일정이 끝난 시간+ 최소 10분 뒤부터 시작해야 함.
+                - 마지막 일정이 끝났을 때 timeTable 끝시간을 절대 넘지 말아야 함.
+                - 3개의 PlanDto 안에 PlanItemDto들중 PlaceItem은 최대한 겹치지 않게 해줘. (새로운 장소들로 PlanDto가 만들어지도록 해줘)
+                
                 [입력 파라미터]
                 - origin: %s
                 - budget_per_person: %s 원
@@ -178,6 +180,8 @@ public class OpenAiService {
 
         PlansDto plansDto = mapper.readValue(text, PlansDto.class);
 
+        log.info(plansDto.toString());
+
         return plansDto;
     }
 
@@ -215,11 +219,10 @@ public class OpenAiService {
                 "type", "object",
                 "additionalProperties", false,
                 "properties", Map.of(
-                        "end_time", Map.of("type", "string"),
                         "order", Map.of("type", "string", "enum", List.of("1", "2", "3")),
                         "planItemDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
                 ),
-                "required", List.of("end_time", "order", "planItemDtos")
+                "required", List.of("order", "planItemDtos")
         );
 
         Map<String, Object> rootSchema = Map.of(
@@ -232,62 +235,4 @@ public class OpenAiService {
         );
         return rootSchema;
     }
-    // 플랜 간 장소 중복 제거
-
-        // (E) PlanDto 구성 + 이동정책 + endTime 세팅
-
-            // 이동 정책 강제(편도=1, 왕복=2)
-
-            // 남는 시간 30분 이하로 보정
-
-            // ✅ 식사 시간대 강제: 시작 시간이 반드시 창 안으로 들어오게
-
-            // order_num 재부여
-
-            // endTime
-
-
-        // Plan 3개 보정
-
-    // ---------- 플랜 간 장소 중복 제거 ----------
-
-
-
-
-
-    // ---------- 테마 장소 보장 ----------
-
-    // ---------- 플랜 내 장소 중복 제거 ----------
-
-
-    // ---------- duration cap ----------
-
-    // ---------- 끝에 장소 하나 추가해서 시간 채우기 ----------
-
-
-    // ---------- endTime 계산 ----------
-
-
-    // ===== PLACE 최소 비용 보정 =====
-
-
-    // -------------------- PLACE 비용 추정(보조) --------------------
-
-
-    // -------------------- 유틸 --------------------
-
-    // ---------- 이동 정책 강제 ----------
-
-
-    /**
-     * 타임테이블 종료시각(ttEnd) 대비 남는 시간이 30분을 초과하면,
-     * 마지막 PLACE(우선) 또는 마지막 비이동 아이템의 duration을 늘려서
-     * 남는 시간을 30분 이하로 맞춘다. (이미 끝에 장소 추가 시 남는 자투리만 보정)
-     */
-
-
-    // ✅ 식사 시간대 강제: 시작시간을 식사 창(타임테이블과의 교집합) 안으로 이동, 교집합 없으면 제거
-
-
-    // 식사 창 상수
 }

@@ -88,7 +88,6 @@ public class PlanService {
             ResponsePlanDto responsePlanDto = ResponsePlanDto
                     .builder().planId(plan.getId())
                     .order(plan.getOrder())
-                    .endTime(plan.getEndTime())
                     .itemDtos(responseItemDtos) // 이번 턴의 plan의 완성된 itemList들을 끼워넣기
                     .build();
 
