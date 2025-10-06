@@ -64,28 +64,17 @@ public class OpenAiService {
                 MOVE:
                    - 편도: 출발→첫 PLACE 1개, 
                    - 왕복: 출발→첫 PLACE + 마지막 PLACE→출발 2개만.
-                   - duration/cost 는 좌표거리 기반(하버사인 + 규칙).
-                - 식사 (MEAL)  : title 은 반드시 "아침식사" / "점심식사" / "저녁식사"
-                - 장소 (PLACE) : title 은 “{placeName}에서 전시 관람/공연 관람/체험/방문 …” 같은 자연스러운 문장
-                
-                [입력 파라미터]
-                - origin: %s
-                - budget_per_person: %s 원
-                - headcount: %s 명
-                - transportation: %s
-                - date: %s
-                - timeTable: %s
-                - theme: %s
-                - origin_coord(lat,lon): %s, %s
-                - isOneWay: %s
-                
-                [아이템 규칙]
-                1) MEAL:
+                   - duration
+                   - cost
+               
+               - 식사 (MEAL)  : title 은 반드시 "아침식사" / "점심식사" / "저녁식사"
+               MEAL:
                    - 아침 08:00~10:59, 점심 11:00~15:29, 저녁 17:30~21:59
                    - timeTable과 겹치는 시간대마다 '정확히 한 번' 넣기, duration="60".
                    - 식사 직전/직후 "이동" 금지.
-                
-                3) PLACE:
+                   
+                - 장소 (PLACE) : title 은 “{placeName}에서 전시 관람/공연 관람/체험/방문 …” 같은 자연스러운 문장
+                PLACE:
                    - seed_places에서만 선택, place_url/placeName/description 필수.
                    - title 은 자연스러운 문장.
                    - **duration 최대 150분**을 넘기지 말 것.
@@ -98,11 +87,27 @@ public class OpenAiService {
                    - ("전망대","스카이","타워") 10000;
                    - ("카페","디저트") 8000;
                    -("쇼핑","백화점","몰","마켓") 0;
+                   
+               [모든 Item 공통]
+                - start_time(시작시간) 에 duration(소요시간)이 지나고 난 end_time을 계산해줘.
+                - end_time은 각PlanItemDto의 필드가 되지는 않지만, PlanDto의 end_time을 위해 계산되어야 해.  
+                - end_time은 HH:mm 형식으로 맞춰줘.
+              
+                [입력 파라미터]
+                - origin: %s
+                - budget_per_person: %s 원
+                - headcount: %s 명
+                - transportation: %s
+                - date: %s
+                - timeTable: %s
+                - theme: %s
+                - origin_coord(lat,lon): %s, %s
+                - isOneWay: %s
                 
                 4) 정렬/범위:
                    - 모든 start_time 은 %s 범위 안.
                    - start_time 오름차순, order_num 1부터 연속.
-                   - 각 Plan 3~10개.
+                   - 각 PlanItem 3~10개.
                 
                 5) 예산/인원:
                    - 총예산 = budget_per_person × headcount 내.
@@ -210,10 +215,11 @@ public class OpenAiService {
                 "type", "object",
                 "additionalProperties", false,
                 "properties", Map.of(
+                        "end_time", Map.of("type", "string"),
                         "order", Map.of("type", "string", "enum", List.of("1", "2", "3")),
                         "planItemDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
                 ),
-                "required", List.of("order", "planItemDtos")
+                "required", List.of("end_time", "order", "planItemDtos")
         );
 
         Map<String, Object> rootSchema = Map.of(
