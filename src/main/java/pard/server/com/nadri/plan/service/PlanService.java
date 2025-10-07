@@ -29,27 +29,18 @@ public class PlanService {
     private final PlanRepo planRepo;
     private final PlanItemRepo planItemRepo;
     private final PlansRepo plansRepo;
+    private final PlanUtil planUtil;
 
     @Transactional
     public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) throws JsonProcessingException {
         Coord coord = kakaoLocalService.convertToCoordinate(createPlanDto.getOrigin());
-        List<String> keywords = makeKeywords(createPlanDto.getTheme());
+        List<String> keywords = planUtil.makeKeywords(createPlanDto.getTheme());
         List<PlaceDto> placeDtos = kakaoLocalService.searchByKeywords(coord, keywords);
         PlansDto plansDto = openAiService.callChatApi(createPlanDto, coord ,placeDtos);
 
         // Plans 빼주고, 그거 바탕으로 ResponsePlansDto 만들기
         Plans plans = savePlans(plansDto);
         return getPlansDto(plans.getId());
-    }
-
-    public List<String> makeKeywords(String theme){
-        return switch (theme) {
-            case "탐방" -> List.of("박물관", "축제");
-            case "체험" -> List.of("원데이 클래스", "공방");
-            case "관광" -> List.of("관광", "자연");
-            case "쇼핑" -> List.of("백화점", "소품점");
-            default -> null;
-        };
     }
 
     @Transactional
@@ -68,58 +59,19 @@ public class PlanService {
     public ResponsePlansDto getPlansDto(Long plansId){
         Plans plans = plansRepo.findById(plansId).orElseThrow();
 
-        // plans에 끼워넣을 planList
-        List<ResponsePlanDto> responsePlanDtos= new ArrayList<>();
-        plans.getPlans().forEach(plan -> {
-            // plan에 끼워넣을 itemList
-            List<ResponseItemDto> responseItemDtos = new ArrayList<>();
+        // Plans로 List<ResponsePlanDto> 만들기
+        List<ResponsePlanDto> responsePlanDtos = planUtil.getPlansDtos(plans);
 
-            plan.getPlanItems().forEach(planItem -> {
-                ResponseItemDto responseItemDto = ResponseItemDto
-                        .builder()
-                        .title(planItem.getTitle())
-                        .orderNum(planItem.getOrderNum())
-                        .build();
-
-                // item 만들었으면 itemList에 add.
-                responseItemDtos.add(responseItemDto);
-            });
-
-            ResponsePlanDto responsePlanDto = ResponsePlanDto
-                    .builder().planId(plan.getId())
-                    .order(plan.getOrder())
-                    .itemDtos(responseItemDtos) // 이번 턴의 plan의 완성된 itemList들을 끼워넣기
-                    .build();
-
-            responsePlanDtos.add(responsePlanDto); // Plan 만들었으면 PlanList에 추가
-        });
-        return ResponsePlansDto.builder()
-                .responsePlanDtos(responsePlanDtos) // planList 완성됐으면 plans에 추가
-                .plansId(plans.getId())
-                .build();
+        return ResponsePlansDto.of(plans.getId(), responsePlanDtos);
     }
 
     public PlanDetailsDto getDetails(Long planId) {
         Plan plan = planRepo.findById(planId).orElseThrow();
         List<PlanItem> planItems = planItemRepo.findAllByPlan(plan);
 
-        List<PlanItemDto> planItemDtos = planItems.stream().map(this::toItemDto).toList();
+        // PlanItem들로 각각 Dto 만들어서 PlanDetailsDto에 쏙 넣어주기.
+        List<PlanItemDto> planItemDtos = planItems.stream().map(planUtil::toItemDto).toList();
 
-        return PlanDetailsDto.builder()
-                .itemDtos(planItemDtos)
-                .build();
-    }
-
-    public PlanItemDto toItemDto(PlanItem planItem) {
-        if (planItem instanceof PlanItem.MealItem m) {
-            return PlanItemDto.MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
-        } else if (planItem instanceof PlanItem.MoveItem mv) {
-            return PlanItemDto.MoveItemDto.of(mv.getTitle(), mv.getOrderNum(),mv.getDuration(), mv.getStartTime());
-        } else if (planItem instanceof PlanItem.PlaceItem p) {
-            return PlanItemDto.PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
-            }
-        {
-            throw new IllegalStateException("Unknown PlanItem subtype: " + planItem.getClass());
-        }
+        return PlanDetailsDto.from(planItemDtos);
     }
 }
