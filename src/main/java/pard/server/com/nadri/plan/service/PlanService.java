@@ -17,7 +17,6 @@ import pard.server.com.nadri.plan.repository.PlanItemRepo;
 import pard.server.com.nadri.plan.repository.PlanRepo;
 import pard.server.com.nadri.plan.repository.PlansRepo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,8 +69,8 @@ public class PlanService {
         List<PlanItem> planItems = planItemRepo.findAllByPlan(plan);
 
         // PlanItem들로 각각 Dto 만들어서 PlanDetailsDto에 쏙 넣어주기.
-        List<PlanItemDto> planItemDtos = planItems.stream().map(planUtil::toItemDto).toList();
+        List<PlanItemDetailsDto> planItemDetailsDtos = planItems.stream().map(planUtil::toItemDto).toList();
 
-        return PlanDetailsDto.from(planItemDtos);
+        return PlanDetailsDto.from(planItemDetailsDtos);
     }
 }

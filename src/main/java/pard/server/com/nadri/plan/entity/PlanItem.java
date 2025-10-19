@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import pard.server.com.nadri.openai.dto.PlanItemDto;
+import pard.server.com.nadri.openai.dto.PlanItemDetailsDto;
 
 import java.time.LocalTime;
 
@@ -28,12 +28,12 @@ public abstract class PlanItem {
     private String duration; // 소요 시간
     private int cost; // 비용
 
-    public static PlanItem from(PlanItemDto planItemDto){
-        if(planItemDto instanceof PlanItemDto.MealItemDto mealItemDto){
+    public static PlanItem from(PlanItemDetailsDto planItemDetailsDto){
+        if(planItemDetailsDto instanceof PlanItemDetailsDto.MealItemDetailsDto mealItemDto){
             return MealItem.from(mealItemDto);
-        }else if(planItemDto instanceof  PlanItemDto.MoveItemDto moveItemDto){
+        }else if(planItemDetailsDto instanceof  PlanItemDetailsDto.MoveItemDetailsDto moveItemDto){
             return MoveItem.from(moveItemDto);
-        }else if(planItemDto instanceof PlanItemDto.PlaceItemDto placeItemDto){
+        }else if(planItemDetailsDto instanceof PlanItemDetailsDto.PlaceItemDetailsDto placeItemDto){
             return PlaceItem.from(placeItemDto);
         }else{
             return null;
@@ -49,7 +49,7 @@ public abstract class PlanItem {
     @NoArgsConstructor @SuperBuilder
     @Getter
     public static class MealItem extends PlanItem {
-        public static MealItem from(PlanItemDto.MealItemDto itemDto) {
+        public static MealItem from(PlanItemDetailsDto.MealItemDetailsDto itemDto) {
             return MealItem.builder()
                     .title(itemDto.getTitle())
                     .startTime(itemDto.getStartTime())
@@ -64,7 +64,7 @@ public abstract class PlanItem {
     @NoArgsConstructor @SuperBuilder
     @Getter
     public static class MoveItem extends PlanItem{
-        public static MoveItem from(PlanItemDto.MoveItemDto itemDto){
+        public static MoveItem from(PlanItemDetailsDto.MoveItemDetailsDto itemDto){
             return MoveItem.builder()
                     .title(itemDto.getTitle())
                     .duration(itemDto.getDuration())
@@ -83,7 +83,7 @@ public abstract class PlanItem {
         private String linkUrl;
         private String placeName;
 
-        public static PlaceItem from(PlanItemDto.PlaceItemDto itemDto){
+        public static PlaceItem from(PlanItemDetailsDto.PlaceItemDetailsDto itemDto){
             return PlaceItem.builder()
                     .title(itemDto.getTitle())
                     .duration(itemDto.getDuration())

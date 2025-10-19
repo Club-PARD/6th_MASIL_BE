@@ -9,11 +9,11 @@ import lombok.*;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "type", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = PlanItemDto.MoveItemDto.class,  name = "MOVE"),
-        @JsonSubTypes.Type(value = PlanItemDto.MealItemDto.class,  name = "MEAL"),
-        @JsonSubTypes.Type(value = PlanItemDto.PlaceItemDto.class, name = "PLACE")
+        @JsonSubTypes.Type(value = PlanItemDetailsDto.MoveItemDetailsDto.class,  name = "MOVE"),
+        @JsonSubTypes.Type(value = PlanItemDetailsDto.MealItemDetailsDto.class,  name = "MEAL"),
+        @JsonSubTypes.Type(value = PlanItemDetailsDto.PlaceItemDetailsDto.class, name = "PLACE")
 })
-public abstract class PlanItemDto {
+public abstract class PlanItemDetailsDto {
     private String type; // MOVE | MEAL | PLACE
     private String title;
 
@@ -32,9 +32,9 @@ public abstract class PlanItemDto {
     // ----------------- 서브 클래스들 -----------------
 
     @Getter @Setter @NoArgsConstructor
-    public static class MealItemDto extends PlanItemDto {
-        public static MealItemDto of(String title, int orderNum, String duration, LocalTime startTime) {
-            MealItemDto m = new MealItemDto();
+    public static class MealItemDetailsDto extends PlanItemDetailsDto {
+        public static MealItemDetailsDto of(String title, int orderNum, String duration, LocalTime startTime) {
+            MealItemDetailsDto m = new MealItemDetailsDto();
             m.setType("MEAL");
             m.setTitle(title);
             m.setOrderNum(orderNum);
@@ -45,9 +45,9 @@ public abstract class PlanItemDto {
     }
 
     @Getter @Setter @NoArgsConstructor
-    public static class MoveItemDto extends PlanItemDto {
-        public static MoveItemDto of(String title, int orderNum, String duration, LocalTime startTime) {
-            MoveItemDto mv = new MoveItemDto();
+    public static class MoveItemDetailsDto extends PlanItemDetailsDto {
+        public static MoveItemDetailsDto of(String title, int orderNum, String duration, LocalTime startTime) {
+            MoveItemDetailsDto mv = new MoveItemDetailsDto();
             mv.setType("MOVE");
             mv.setTitle(title);
             mv.setOrderNum(orderNum);
@@ -58,7 +58,7 @@ public abstract class PlanItemDto {
     }
 
     @Getter @Setter @NoArgsConstructor
-    public static class PlaceItemDto extends PlanItemDto {
+    public static class PlaceItemDetailsDto extends PlanItemDetailsDto {
         private String description;
 
         @JsonProperty("link_url")
@@ -67,9 +67,9 @@ public abstract class PlanItemDto {
         @JsonProperty("place_name")
         private String placeName;
 
-        public static PlaceItemDto of(String title, int orderNum, Integer cost, String duration, LocalTime startTime,
-                                      String description, String linkUrl, String placeName) {
-            PlaceItemDto p = new PlaceItemDto();
+        public static PlaceItemDetailsDto of(String title, int orderNum, Integer cost, String duration, LocalTime startTime,
+                                             String description, String linkUrl, String placeName) {
+            PlaceItemDetailsDto p = new PlaceItemDetailsDto();
             p.setType("PLACE");
             p.setTitle(title);
             p.setOrderNum(orderNum);

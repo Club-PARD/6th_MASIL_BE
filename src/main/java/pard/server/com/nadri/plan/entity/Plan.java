@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pard.server.com.nadri.openai.dto.PlanDto;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class Plan {
         List<PlanItem> planItems = new ArrayList<>();
         Plan plan = new Plan();
 
-        planDto.getPlanItemDtos().forEach(planItemDto -> {
+        planDto.getPlanItemDetailsDtos().forEach(planItemDto -> {
             PlanItem planItem = PlanItem.from(planItemDto);
             planItem.savePlan(plan);
             planItems.add(planItem);

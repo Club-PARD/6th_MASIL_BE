@@ -13,13 +13,10 @@ import pard.server.com.nadri.plan.service.PlanService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/plans")
+@RequestMapping("/api/plans")
 public class PlanController {
     private final PlanService planService;
 
-    /**
-     * Create a new plan
-     */
     @PostMapping
     public ResponseEntity<ResponsePlansDto> createPlan(@Valid @RequestBody CreatePlanDto createPlanDto) {
         try {
@@ -30,9 +27,6 @@ public class PlanController {
         }
     }
 
-    /**
-     * Get all plans by plans ID
-     */
     @GetMapping("/{plansId}")
     public ResponseEntity<ResponsePlansDto> getPlans(@PathVariable Long plansId) {
         try {
@@ -43,34 +37,14 @@ public class PlanController {
         }
     }
 
-    /**
-     * Get specific plan details
-     */
-    @GetMapping("/{plansId}/plan/{planId}")
+    @GetMapping("/planDetails/{planId}")
     public ResponseEntity<PlanDetailsDto> getPlanDetails(
-            @PathVariable Long plansId, 
             @PathVariable Long planId) {
         try {
             PlanDetailsDto response = planService.getDetails(planId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-
-    /**
-     * Reload/regenerate plans (if this functionality is needed)
-     */
-    @PostMapping("/{plansId}/reload")
-    public ResponseEntity<ResponsePlansDto> reloadPlans(@PathVariable Long plansId) {
-        try {
-            // Uncomment when service method is implemented
-            // ResponsePlansDto response = planService.reloadPlans(plansId);
-            // return ResponseEntity.ok(response);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

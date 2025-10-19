@@ -2,7 +2,7 @@ package pard.server.com.nadri.plan.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pard.server.com.nadri.openai.dto.PlanItemDto;
+import pard.server.com.nadri.openai.dto.PlanItemDetailsDto;
 import pard.server.com.nadri.plan.dto.res.ResponseItemDto;
 import pard.server.com.nadri.plan.dto.res.ResponsePlanDto;
 import pard.server.com.nadri.plan.entity.PlanItem;
@@ -47,13 +47,13 @@ public class PlanUtil {
         return responsePlanDtos;
     }
 
-    public PlanItemDto toItemDto(PlanItem planItem) {
+    public PlanItemDetailsDto toItemDto(PlanItem planItem) {
         if (planItem instanceof PlanItem.MealItem m) {
-            return PlanItemDto.MealItemDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
+            return PlanItemDetailsDto.MealItemDetailsDto.of(m.getTitle(), m.getOrderNum(), "60", m.getStartTime());
         } else if (planItem instanceof PlanItem.MoveItem mv) {
-            return PlanItemDto.MoveItemDto.of(mv.getTitle(), mv.getOrderNum(),mv.getDuration(), mv.getStartTime());
+            return PlanItemDetailsDto.MoveItemDetailsDto.of(mv.getTitle(), mv.getOrderNum(),mv.getDuration(), mv.getStartTime());
         } else if (planItem instanceof PlanItem.PlaceItem p) {
-            return PlanItemDto.PlaceItemDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
+            return PlanItemDetailsDto.PlaceItemDetailsDto.of(p.getTitle(), p.getOrderNum(), p.getCost(), p.getDuration(), p.getStartTime(), p.getDescription(), p.getLinkUrl(),p.getPlaceName());
         }
         {
             throw new IllegalStateException("Unknown PlanItem subtype: " + planItem.getClass());

@@ -80,11 +80,13 @@ public class JsonPromptUtil {
         final String theme = Optional.ofNullable(req.getTheme()).orElse("-");
         return """
                 당신은 여행 일정 기획자입니다. 아래 입력과 seed_places(좌표 포함)만으로 서로 다른 정확히 3개의 Plan을 만드세요.
-                각 Plan은 3~10개의 아이템으로 구성되며, 아이템은 세 종류뿐입니다:
+                하루동안 여행할 계획 서로 다른 3가지를 만들어주는겁니다.
+                각 Plan은 아이템으로 구성되며, 아이템은 세 종류뿐입니다:
                 - "이동" (MOVE) : title 은 반드시 "이동"
                 MOVE:
-                   - 왕복: inOneWay가 false일 때, 마지막 일정은 무조건 이동. 
+                   - 왕복: inOneWay가 false일 때, 마지막 일정은 무조건 이동.
                    - duration은 위치에 따라 5~20분 사이로 결정.
+                   - 일정들 사이에 1~2번정도는 MOVE가 들어가줘야 함.
                
                - 식사 (MEAL)  : title 은 반드시 "아침식사" / "점심식사" / "저녁식사"
                MEAL:
@@ -94,14 +96,13 @@ public class JsonPromptUtil {
                    
                 - 장소 (PLACE) : title 은 “{placeName}에서 전시 관람/공연 관람/체험/방문 …” 같은 자연스러운 문장
                 PLACE:
+                   - TimeTable이 길다면 장소 갯수와 duration을 늘려줘.
                    - seed_places에서만 선택, place_url/placeName/description 필수.
                    - title 은 자연스러운 문장.
-                   - **duration 최대 150분**을 넘기지 말 것.
-                   - duration 최소 60분 이상.
+                   - duration 최소 60분 이상, 150분 이하. 장소에 따라 넉넉하게 duration 잡아줘도 됨.
                    - 영화관이라면 duration 120으로 고정, cost는 14000원으로 고정. 
-                   - 가능하면 입장료(cost) 기입. (카페/장소는 **최소 비용 보정**)
                    -  ("박물관","미술관","전시")  12000;
-                   - ("공연","연극","콘서트","뮤지컬") 30000;
+                   - ("공연","연극","콘서트","뮤지컬") 12000;
                    - ("체험","공방","키트") 15000;
                    - ("전망대","스카이","타워") 10000;
                    - ("카페","디저트") 8000;
@@ -112,9 +113,10 @@ public class JsonPromptUtil {
                 "cost", "link_url", "place_name", "description" 필드는 오직 PlaceItem을 위한 필드. MOVE와 MEAL에는 이 필드를 고려할 필요 없음.
                 
                 - start_time(시작시간) + duration(소요시간)이 일정이 끝난 시간.
-                - 각각의 일정 시작시간(start_time)은 이전 일정이 끝난 시간+ 최소 10분 뒤부터 시작해야 함.
-                - 마지막 일정이 끝났을 때 timeTable 끝시간을 절대 넘지 말아야 함.
+                - 반드시 직전 일정이 끝나고, 10~20분 안에 다음 일정을 시작해야 함.
+                - 마지막 일정이 끝났을 때 timeTable 끝시간을 절대 넘지 말아야 함. 또, timeTable 끝시간을 30분 이상 남기지 않아야 함.
                 - 3개의 PlanDto 안에 PlanItemDto들중 PlaceItem은 최대한 겹치지 않게 해줘. (새로운 장소들로 PlanDto가 만들어지도록 해줘)
+                - 모든 cost를 합쳤을 때 budget_per_person을 넘지 않도록 해줘.
                 
                 [입력 파라미터]
                 - origin: %s
@@ -159,7 +161,7 @@ public class JsonPromptUtil {
 
     public String getResponseJson(String prompt, Map<String, Object> rootSchema, WebClient client){
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-5-nano",
+                "model", "gpt-5",
                 "instructions", "Return ONLY valid JSON matching the schema. No extra text.",
                 "input", prompt,
                 "text", Map.of("format", Map.of(
@@ -185,7 +187,9 @@ public class JsonPromptUtil {
                 .block();
     }
 
+    // rootSchema -> PlansDto로 매핑, 로그찍기.
     public PlansDto getPlansDto(String responseJson, ObjectMapper mapper) throws JsonProcessingException {
+
         JsonNode root = mapper.readTree(responseJson);
         log.info("OpenAI response -> root: {}", root);
 
