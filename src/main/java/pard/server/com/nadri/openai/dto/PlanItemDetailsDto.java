@@ -2,6 +2,9 @@ package pard.server.com.nadri.openai.dto;// 부모
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import lombok.*;
 
 @Getter @Setter @NoArgsConstructor
@@ -24,6 +27,7 @@ public abstract class PlanItemDetailsDto {
     private String duration;
 
     @JsonProperty("start_time")
+    @JsonDeserialize(using = LocalTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime startTime;
 

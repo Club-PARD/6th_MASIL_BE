@@ -18,11 +18,12 @@ public class PlanController {
     private final PlanService planService;
 
     @PostMapping
-    public ResponseEntity<ResponsePlansDto> createPlan(@Valid @RequestBody CreatePlanDto createPlanDto) {
+    public ResponseEntity<ResponsePlansDto> createPlan(@RequestBody CreatePlanDto createPlanDto) {
         try {
             ResponsePlansDto response = planService.createPlan(createPlanDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            System.out.println("조졌습니다" + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

@@ -32,9 +32,13 @@ public class PlanService {
 
     @Transactional
     public ResponsePlansDto createPlan(CreatePlanDto createPlanDto) throws JsonProcessingException {
+        System.out.println("createPlan");
         Coord coord = kakaoLocalService.convertToCoordinate(createPlanDto.getOrigin());
+        System.out.println("coord");
         List<String> keywords = planUtil.makeKeywords(createPlanDto.getTheme());
+        System.out.println("keywords");
         List<PlaceDto> placeDtos = kakaoLocalService.searchByKeywords(coord, keywords);
+        System.out.println("placeDtos");
         PlansDto plansDto = openAiService.callChatApi(createPlanDto, coord ,placeDtos);
 
         // Plans 빼주고, 그거 바탕으로 ResponsePlansDto 만들기

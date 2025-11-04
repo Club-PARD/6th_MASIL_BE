@@ -44,4 +44,4 @@ openai:
 app:
   kakao: 
     base-url: "https://dapi.kakao.com"
-    rest-api-key: "${KAKAO_REST_API_KEY}"
+    rest-api-key: "${REST_API_KEY}"

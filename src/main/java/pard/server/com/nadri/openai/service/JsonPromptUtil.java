@@ -57,9 +57,9 @@ public class JsonPromptUtil {
                 "additionalProperties", false,
                 "properties", Map.of(
                         "order", Map.of("type", "string", "enum", List.of("1", "2", "3")),
-                        "planItemDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
+                        "planItemDetailsDtos", Map.of("type", "array", "minItems", 3, "maxItems", 10, "items", itemSchema)
                 ),
-                "required", List.of("order", "planItemDtos")
+                "required", List.of("order", "planItemDetailsDtos")
         );
 
         Map<String, Object> rootSchema = Map.of(
@@ -189,7 +189,7 @@ public class JsonPromptUtil {
 
     // rootSchema -> PlansDto로 매핑, 로그찍기.
     public PlansDto getPlansDto(String responseJson, ObjectMapper mapper) throws JsonProcessingException {
-
+        System.out.println("getPlansDto");
         JsonNode root = mapper.readTree(responseJson);
         log.info("OpenAI response -> root: {}", root);
 
@@ -208,7 +208,7 @@ public class JsonPromptUtil {
 
         PlansDto plansDto = mapper.readValue(text, PlansDto.class);
 
-        log.info(plansDto.toString());
+        log.info(mapper.writeValueAsString(plansDto));
 
         return plansDto;
     }
