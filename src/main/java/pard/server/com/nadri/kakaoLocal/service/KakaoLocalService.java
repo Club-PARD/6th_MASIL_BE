@@ -1,20 +1,13 @@
 package pard.server.com.nadri.kakaoLocal.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import pard.server.com.nadri.kakaoLocal.KakaoProps;
 import pard.server.com.nadri.kakaoLocal.dto.Coord;
 import pard.server.com.nadri.kakaoLocal.dto.CoordinateRecord;
 import pard.server.com.nadri.kakaoLocal.dto.KakaoPlaceDto;
 import pard.server.com.nadri.kakaoLocal.dto.PlaceDto;
 import pard.server.com.nadri.openai.service.OpenAiService;
-import pard.server.com.nadri.plan.dto.req.CreatePlanDto;
-
-import java.net.URI;
 import java.util.List;
 
 @Service
